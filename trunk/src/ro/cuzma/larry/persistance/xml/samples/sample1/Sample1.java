@@ -1,11 +1,9 @@
 package ro.cuzma.larry.persistance.xml.samples.sample1;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
 import ro.cuzma.larry.persistance.xml.XMLFileManipulation;
+import ro.cuzma.larry.persistance.xml.XMLUtil;
 import ro.cuzma.larry.persistance.xml.exception.XMLException;
 import ro.cuzma.larry.persistance.xml.samples.sample1.objects.Author;
 import ro.cuzma.larry.persistance.xml.samples.sample1.objects.EntityFactory;
@@ -29,14 +27,7 @@ public class Sample1 {
         LibraryHelper libh = new LibraryHelper(lib);
         System.out.println(libh.toXml(""));
 
-        try {
-            BufferedWriter out = new BufferedWriter(new FileWriter("lib.xml"));
-            out.write(libh.toXml(""));
-            out.close();
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
+        XMLUtil.saveXMLToFile("lib.xml", libh);
 
         // now open file and read objects from it
         XMLFileManipulation ll = new XMLFileManipulation();
