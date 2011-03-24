@@ -31,10 +31,10 @@ public class XMLNodeList<T extends XMLNode, E extends Entity<?>> extends XMLObje
         return childrenTag;
     }
 
-    public String toXml(String indent) {
+    public String toXml(String indent) throws XMLException {
         String xml = "";
         if (toSave()) {
-            xml = XMLUtil.getStartTag(this.getTag(), indent);
+            xml = XMLUtil.getStartTag(this, indent, (nodeList != null && nodeList.size() > 0));
 
             for (XMLNode pair : this.getData()) {
                 xml += pair.toXml(indent + "\t");
@@ -46,7 +46,7 @@ public class XMLNodeList<T extends XMLNode, E extends Entity<?>> extends XMLObje
 
     @Override
     public boolean toSave() {
-        return nodeList != null && nodeList.size() > 0;
+        return (nodeList != null && nodeList.size() > 0) || getAtributes().size() > 0;
     }
 
     @Override

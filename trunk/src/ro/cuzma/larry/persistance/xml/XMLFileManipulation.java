@@ -7,8 +7,10 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -54,7 +56,7 @@ public class XMLFileManipulation {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private XMLObject proccessXMLNode(Node fstNode, XMLNode xmlNode) throws XMLException {
-
+        setAtributes((Element) fstNode, xmlNode);
         for (XMLObject xmlElement : xmlNode.getData()) {
             if (xmlElement instanceof XMLTagValue) {
                 List<Element> tagValueList = getChildrenByTagName((Element) fstNode,
@@ -67,6 +69,7 @@ public class XMLFileManipulation {
                         xmlElement.getTag());
                 Element nodeElement = nodeList.get(0);
                 XMLNode node = (XMLNode) xmlElement;
+
                 proccessXMLNode(nodeElement, (XMLNode) node);
             } else if (xmlElement instanceof XMLNodeList) {
 
@@ -86,17 +89,32 @@ public class XMLFileManipulation {
 
             } else if (xmlElement instanceof XMLTagValueList) {
                 XMLTagValueList xmlTagValueList = (XMLTagValueList) xmlElement;
-                List<Element> tagList = getChildrenByTagName((Element) fstNode,
-                        xmlTagValueList.getTag());
-                if (tagList.size() > 0) {
-                    List<Element> childrenList = getChildrenByTagName((Element) tagList.get(0),
-                            xmlTagValueList.getChildrenTag());
-                    XMLObject xmlObj;
-                    for (int i = 0; i < childrenList.size(); i++) {
-                        xmlObj = xmlFactory.getHelper(xmlTagValueList.getChildrenTag());
-                        xmlTagValueList.add(proccessXMLTagValue(childrenList.get(i),
-                                (XMLTagValue) xmlObj));
+
+                if (xmlTagValueList.isShowMasterTag()) {
+                    List<Element> tagList = getChildrenByTagName((Element) fstNode,
+                            xmlTagValueList.getTag());
+                    if (tagList.size() > 0) {
+                        List<Element> childrenList = getChildrenByTagName((Element) tagList.get(0),
+                                xmlTagValueList.getChildrenTag());
+                        XMLObject xmlObj;
+                        for (int i = 0; i < childrenList.size(); i++) {
+                            xmlObj = xmlFactory.getHelper(xmlTagValueList.getChildrenTag());
+                            xmlTagValueList.add(proccessXMLTagValue(childrenList.get(i),
+                                    (XMLTagValue) xmlObj));
+                        }
                     }
+                } else {
+                    List<Element> tagList = getChildrenByTagName((Element) fstNode,
+                            xmlTagValueList.getChildrenTag());
+                    if (tagList.size() > 0) {
+                        XMLObject xmlObj;
+                        for (int i = 0; i < tagList.size(); i++) {
+                            xmlObj = xmlFactory.getHelper(xmlTagValueList.getChildrenTag());
+                            xmlTagValueList.add(proccessXMLTagValue(tagList.get(i),
+                                    (XMLTagValue) xmlObj));
+                        }
+                    }
+
                 }
             }
 
@@ -104,10 +122,22 @@ public class XMLFileManipulation {
         return xmlNode;
     }
 
+    private void setAtributes(Element nodeElement, XMLObject xmlObject) {
+        NamedNodeMap attrs = nodeElement.getAttributes();
+        Attr attribute;
+        for (int i = 0; i < attrs.getLength(); i++) {
+            attribute = (Attr) attrs.item(i);
+            xmlObject.addAtribute(attribute.getName(), attribute.getValue());
+        }
+    }
+
     private XMLTagValue proccessXMLTagValue(Node fstNode, XMLTagValue xmlTagValue) {
         String value;
-        value = fstNode.getChildNodes().item(0).getNodeValue();
-        xmlTagValue.setValue(value);
+        if (fstNode.getChildNodes().getLength() > 0) {
+            value = fstNode.getChildNodes().item(0).getNodeValue();
+            xmlTagValue.setValue(value);
+        }
+        setAtributes((Element) fstNode, xmlTagValue);
         return xmlTagValue;
     }
 
