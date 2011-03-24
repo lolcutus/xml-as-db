@@ -30,7 +30,7 @@ public abstract class XMLNode extends XMLObject {
         this.xmlObjects = list;
     }
 
-    public String toXml(String indent) {
+    public String toXml(String indent) throws XMLException {
         if (this.toSave()) {
             return toXml(this, indent);
         }
@@ -38,9 +38,9 @@ public abstract class XMLNode extends XMLObject {
     }
 
     @SuppressWarnings("rawtypes")
-    private String toXml(XMLNode xmlNode, String indent) {
+    private String toXml(XMLNode xmlNode, String indent) throws XMLException {
         String xml;
-        xml = XMLUtil.getStartTag(xmlNode.getTag(), indent);
+        xml = XMLUtil.getStartTag(xmlNode, indent, (xmlObjects != null && xmlObjects.size() > 0));
 
         for (XMLObject pair : xmlNode.getData()) {
             if (pair instanceof XMLTagValue) {
@@ -59,7 +59,7 @@ public abstract class XMLNode extends XMLObject {
 
     @Override
     public boolean toSave() {
-        return xmlObjects != null && xmlObjects.size() > 0;
+        return (xmlObjects != null && xmlObjects.size() > 0) || getAtributes().size() > 0;
     }
 
 }
