@@ -20,7 +20,7 @@ public class EntityFactory {
 
     public static Author buildAuthor(AuthorHelper ah) {
         Author author = new Author();
-        author.setId(ah.getId().getLong());
+        author.setId(new Long(ah.getId()));
         author.setName(ah.getName().getValue());
         author.setFirstName(ah.getFirstName().getValue());
         author.setMiddleName(ah.getMiddleName().getValue());
